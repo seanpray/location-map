@@ -182,7 +182,7 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
       let row = [];
       let field = "";
       let enclosed = false;
-
+      let blank_fields = 0;
       for (let i = 0; i < CSV_RAW.length; i++) {
         const char = CSV_RAW[i];
         const nextChar = CSV_RAW[i + 1];
@@ -193,16 +193,21 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
         } else if (char == '"') {
           enclosed = !enclosed;
         } else if (char == "," && !enclosed) {
-          const cleaned_field = field.trim();
-          if (cleaned_field.length > 0) {
-            row.push(field.trim());
+          const trimmed_field = field.trim();
+          if (trimmed_field.length == 0) {
+            blank_fields += 1;
           }
+          row.push(trimmed_field);
           field = "";
         } else if ((char == "\n" || char == "\r") && !enclosed) {
           if (field || row.length > 0) row.push(field);
-          if (row.length > 0) {
+          if (field.trim().length == 0) {
+            blank_fields += 1;
+          }
+          if (row.length > 0 && blank_fields < row.length) {
             rows.push(row);
           }
+          blank_fields = 0;
           row = [];
           field = "";
           if (char === "\r" && nextChar === "\n") i++;
@@ -211,8 +216,10 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
         }
       }
 
-      if (field || row.length > 0) row.push(field);
-      if (row.length > 0) rows.push(row);
+      if (blank_fields < row.length) {
+        if (field || row.length > 0) row.push(field);
+        if (row.length > 0) rows.push(row);
+      }
       /* columns
         "Clinic Name"
         "Clinic Address"
@@ -361,9 +368,8 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
 
         function add_marker(arraymarkers) {
           const currentMark = arraymarkers[i];
-          var latlng = new LatLng(parseFloat(currentMark[9]), parseFloat(currentMark[10]));
-          console.log(latlng)
-          var marker = new AdvancedMarkerElement({
+          const latlng = new LatLng(parseFloat(currentMark[9]), parseFloat(currentMark[10]));
+          const marker = new AdvancedMarkerElement({
             title: currentMark[0],
             position: latlng,
             map: map,
