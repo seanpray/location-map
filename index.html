@@ -233,7 +233,7 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
       */
       const indexOf = (data, target) => {
         for (const [idx, e] of data.entries()) {
-          if (e.trim().toLowerCase() == target.trim().toLowerCase()) {
+          if (e.trim().toLowerCase().includes(target.trim().toLowerCase())) {
             return idx;
           }
         }
@@ -250,6 +250,7 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
       const LAT_INDEX = indexOf(rows[0], "Latitude")
       const LONG_INDEX = indexOf(rows[0], "Longitude")
       const LOCATIONS_RAW = rows.slice(1)
+      console.log(ADDRESS_INDEX)
       console.log(rows);
 
       const main = async () => {
@@ -258,8 +259,10 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
         const { AdvancedMarkerElement } =
           await google.maps.importLibrary("marker");
         const { LatLng } = await google.maps.importLibrary("core");
+        const {spherical} = await google.maps.importLibrary("geometry")
+
         var markers = [];
-        var in_area = [];
+        let in_area = [];
         var autocomplete;
         navigator.geolocation.getCurrentPosition(
           (pos) => {
@@ -271,9 +274,9 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
             console.log("failed to get coords");
           },
           {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0,
+            enableHighAccuracy: false,
+            timeout: 15000,
+            maximumAge: 1000 * 60,
           },
         );
         const distanceMatrix = new google.maps.DistanceMatrixService();
@@ -283,6 +286,7 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
         autocomplete = new Autocomplete(
           document.getElementById("locator_text"),
         );
+
 
         const infoWindow = new google.maps.InfoWindow();
         var map = new google.maps.Map(document.getElementById("map"), {
@@ -296,14 +300,18 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
         });
         setTimeout(() => {
           console.log(autocomplete.coords);
+          if (!autocomplete.coords) {
+            autocomplete.coords = { lat: 39.8, lng: -98.58}
+          }
+          console.log(autocomplete.coords);
           //map.setCenter(new LatLng(autocomplete.coords.lat, autocomplete.coords.lng))
           map.setCenter(autocomplete.coords);
-          map.setZoom(2);
+          map.setZoom(6);
           console.log("reset center");
         }, 600);
 
         for (i = 0; i < LOCATIONS_RAW.length; i++) {
-          add_marker(LOCATIONS_RAW);
+          add_marker(LOCATIONS_RAW[i]);
         }
 
         google.maps.event.addDomListener(window, "resize", function () {
@@ -329,12 +337,13 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
                   center: searchedlocation,
                 });
                 map.setCenter(searchedlocation);
-                map.fitBounds(circle.getBounds());
+                //map.setZoom(6);
+                //map.fitBounds(circle.getBounds());
 
-                for (i = 0; i < locations.length; i++) {
+                for (i = 0; i < LOCATIONS_RAW.length; i++) {
                   var position = new google.maps.LatLng(
-                    locations[i][1],
-                    locations[i][2],
+                    parseFloat(LOCATIONS_RAW[i][LAT_INDEX]),
+                    parseFloat(LOCATIONS_RAW[i][LONG_INDEX]),
                   );
                   var distance =
                     google.maps.geometry.spherical.computeDistanceBetween(
@@ -345,9 +354,9 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
                   if (distance <= radiusmetric) {
                     markers[i].setMap(map);
                     in_area.push([
-                      locations[i][0],
-                      locations[i][3],
-                      locations[i][4],
+                      LOCATIONS_RAW[i][NAME_INDEX],
+                      LOCATIONS_RAW[i][ADDRESS_INDEX],
+                      LOCATIONS_RAW[i][PHONE_INDEX],
                       (distance * 0.000621371192).toFixed(2),
                     ]);
                   } else {
@@ -366,11 +375,10 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
           map.setCenter(center);
         }
 
-        function add_marker(arraymarkers) {
-          const currentMark = arraymarkers[i];
-          const latlng = new LatLng(parseFloat(currentMark[9]), parseFloat(currentMark[10]));
+        function add_marker(currentMark) {
+          const latlng = new LatLng(parseFloat(currentMark[LAT_INDEX]), parseFloat(currentMark[LONG_INDEX]));
           const marker = new AdvancedMarkerElement({
-            title: currentMark[0],
+            title: currentMark[NAME_INDEX],
             position: latlng,
             map: map,
             gmpClickable: true,
@@ -379,14 +387,43 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
             const { target } = domEvent;
 
             infoWindow.close();
-            infoWindow.setContent("Title: " + marker.title);
+            let content_string = `${currentMark[NAME_INDEX]}<br>`;
+            const address = currentMark[ADDRESS_INDEX];
+            if (address.length > 0) {
+              content_string += `Address: ${address}<br>`;
+            }
+            const payment = currentMark[PAYMENT_INDEX];
+            if (payment.length > 0) {
+              content_string += `Payment Details: ${payment}<br>`;
+            }
+            const services = currentMark[SERVICES_INDEX];
+            if (services.length > 0) {
+              content_string += `Services Available:${services}<br>`
+            }
+            const notes = currentMark[NOTES_INDEX];
+            if (notes.length > 0) {
+              content_string += `Notes: ${notes}<br>`;
+            }
+            const website = currentMark[WEBSITE_INDEX];
+            if (website.length > 0) {
+              content_string += `Website: <a href="${currentMark[WEBSITE_INDEX]}">${currentMark[WEBSITE_INDEX].match(/(https?:\/\/)?(www\.)?([\w-]+\.\w+)/i)[3]}</a><br>`
+            }
+            const phone = currentMark[PHONE_INDEX];
+            if (phone.length > 0) {
+              content_string += `Phone: ${currentMark[PHONE_INDEX]}<br>`
+            }
+            const bus = currentMark[BUS_INDEX];
+            if (bus.length > 0) {
+              content_string += `Bus: ${currentMark[BUS_INDEX]}<br>`
+            }
+            infoWindow.setContent(content_string.trim());
             infoWindow.open(marker.map, marker);
           });
           markers[i] = marker;
         }
 
         function resultstotal(resultstotal, radius, search, circlearea) {
-          $("main")
+          $("#results_list")
             .empty()
             .append(
               '<p class="col">' +
@@ -406,7 +443,7 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
             const dealeremail = in_area[i][2];
             const distanceround = in_area[i][3];
 
-            $("main ol").append(
+            $("#results_list").append(
               "<li>" +
                 "<h4>" +
                 dealername +
@@ -424,26 +461,35 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
                 "</li>",
             );
           }
-
-          $("main, #map").addClass("active");
-
-          $("html, body").animate(
-            {
-              scrollTop: $("main").offset().top,
-            },
-            500,
-          );
-          $("main").on(
-            "transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd",
-            function (e) {
-              centermap();
-              map.fitBounds(circlearea.getBounds());
-            },
-          );
         }
       };
-      main().then(() => {});
+      main().then(() => {
+        setTimeout(() => {
+            $("#map").css("position", "static");
+        }, 500)
+      });
     </script>
+    <style>
+      .reset {
+        position: absolute;
+        all: unset;
+      }
+      #results {
+        position: relative;
+        width: 15%;
+        float: left;
+        height: 90%;
+        z-index: 5;
+      }
+
+      #maparea {
+        position: relative;
+        width: 85%;
+        float: left;
+        height: 90%;
+        overflow: hidden;
+      }
+    </style>
   </head>
   <header role="banner" class="column-xs main-xs-center">
     <form
@@ -462,12 +508,18 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
           <option value="25">25 mi</option>
           <option value="50">50 mi</option>
           <option value="100">100 mi</option>
-          <option value="100">500 mi</option>
+          <option value="500">500 mi</option>
         </select>
       </div>
       <button type="submit">Search</button>
     </form>
   </header>
-  <aside id="map"></aside>
-  <main id="results"></main>
+  <main>
+    <div id="results">
+      <main id="results_list"></main>
+    </div>
+    <div id="maparea">
+      <div id="map" class="reset"></div>
+    </div>
+  </main>
 </html>
