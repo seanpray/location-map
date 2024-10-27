@@ -1,0 +1,467 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="./main.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+      ((g) => {
+        var h,
+          a,
+          k,
+          p = "The Google Maps JavaScript API",
+          c = "google",
+          l = "importLibrary",
+          q = "__ib__",
+          m = document,
+          b = window;
+        b = b[c] || (b[c] = {});
+        var d = b.maps || (b.maps = {}),
+          r = new Set(),
+          e = new URLSearchParams(),
+          u = () =>
+            h ||
+            (h = new Promise(async (f, n) => {
+              await (a = m.createElement("script"));
+              e.set("libraries", [...r] + "");
+              for (k in g)
+                e.set(
+                  k.replace(/[A-Z]/g, (t) => "_" + t[0].toLowerCase()),
+                  g[k],
+                );
+              e.set("callback", c + ".maps." + q);
+              a.src = `https://maps.${c}apis.com/maps/api/js?` + e;
+              d[q] = f;
+              a.onerror = () => (h = n(Error(p + " could not load.")));
+              a.nonce = m.querySelector("script[nonce]")?.nonce || "";
+              m.head.append(a);
+            }));
+        d[l]
+          ? console.warn(p + " only loads once. Ignoring:", g)
+          : (d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)));
+      })({
+        v: "weekly",
+        // Use the 'v' parameter to indicate the version to use (weekly, beta, alpha, etc.).
+        // Add other bootstrap parameters as needed, using camel case.
+      });
+    </script>
+    <script>
+      const CSV_RAW = `
+,,,,,,,,,,
+Clinic Name,Clinic Address,Insurance Needed,Payment,Services Offered,Notes,Website,Phone number,Bus Route,Latitude,Longitude
+,,,,,,,,,,
+El Buen Samaritano – The Wallace Mallory Clinic,"7000 Woodhue Dr., Austin, TX 78745",No,"$40 first visit, $30 each visit after ","Vaccine Clinic
+Adult Education
+Family Planning
+Benefits Assistance
+Food Pantry
+Spiritual Health",Cannot have any form of insurance,www.elbuen.org/health/clinic,(512)439-0701,333,30.198959,-97.80056
+"CommUnityCare: North Central Health Center
+","1210 W. Braker Lane Austin, TX 78758",no,"Fee based on household income; offer discounts on our regular charges based on a person’s income and the number of people in their household. To find out if you qualify for the discount program, call our financial screening staff at 512-978-9015. > no free services ","Family Medicine
+Internal Medicine
+Pediatrics
+Women’s Health
+Maternity Care
+PrEP/PEP
+Dental including limited Pediatric Dentistry
+Ancillary Services including
+Psychiatry
+Behavioral Health
+Nutrition,
+Clinical Pharmacist
+Radiology including X-ray and Mammography
+Telepsychiatry (through videoconference)
+Cardiology
+Dermatology
+Pulmonology
+Endocrinology
+Gastroenterology-Including a HepC Clinic",,https://communitycaretx.org/locations/#Locations,(512) 978-9300,1,30.38575,-97.69408
+Oak Hill Health Center,"8656-A Hwy. 71 W. Ste. C Austin, TX 78735",no,"Fee based on household income; offer discounts on our regular charges based on a person’s income and the number of people in their household. To find out if you qualify for the discount program, call our financial screening staff at 512-978-9015.","Family Medicine including children
+Women’s Health
+Maternity Care
+PrEP/PEP
+ Ancillary Services including
+Tele-psychiatry
+Behavioral Health
+Clinical Pharmacist, & Lab",,,(512) 978-982,670,30.25134,-97.89286
+Pflugerville Health Center,"15822 Foothill Farms Loop Pflugerville, TX 78660",no,"Accepts most insurance plans, Medicaid, and Medicare. Offers a sliding fee scale for eligible patients based on income and family size.
+Administrative fee:
+Not specified on the website, it's recommended to contact the clinic for more information.
+Sliding scale:
+Offers a sliding fee scale for eligible patients based on income and family size.
+Notes:
+Patients can schedule appointments online or by calling the clinic. Wait times may vary based on demand. Some eligibility rules may apply for certain services.
+Turn away patients if they can't pay:
+The clinic provides care regardless of a patient's ability to pay. Patients who cannot afford services may qualify for financial assistance or a sliding fee scale.
+","Family planning, reproductive health services, immunizations, STD testing and treatment, HIV testing and counseling, pregnancy testing and counseling, breast and cervical cancer screening, and other general health services.","Monday: 8:00 AM – 5:00 PM
+Tuesday: 8:00 AM – 7:00 PM
+Wednesday: 8:00 AM – 5:00 PM
+Thursday: 8:00 AM – 5:00 PM
+Friday: 8:00 AM – 5:00 PM
+Saturday: Closed
+Sunday: Closed",https://www.austintexas.gov/department/pflugerville-health-center,(512) 972-6700,"The closest bus route is Capital Metro Route 983, which stops at Pecan Street and Grand Avenue Parkway, about a 10-minute walk from the clinic",30.44905,-97.65179
+Rundberg Health Center,"825 E. Rundberg Lane Ste. B1 Austin, TX 78753",no,"The center accepts most insurance plans, including Medicaid and Medicare. If you don't have insurance, they offer a sliding fee scale based on your income and family size. You can also pay with cash or credit card.
+Administrative fee: The center does not mention any administrative fee on their website or over the phone.
+Sliding scale: Yes, the center offers a sliding fee scale based on your income and family size","Behavioral Health
+Lab Services
+Referrals
+Black Men's Health Clinic
+Mobile Health Teams
+Telehealth
+Dental Health
+Pediatrics
+Walk-In Care
+Health Care for the Homeless
+Pharmacy
+Women's Health
+HIV Care
+Primary Care","The center provides primary care services, including preventive care, sick visits, and chronic disease management. They also offer dental care, behavioral health services, and case management. The center is open Monday to Friday from 8:00 am to 5:00 pm.
+Turn away patients if they can't pay: No, the center does not turn away patients if they can't pay. They offer a sliding fee scale and have financial counselors available to help you find the best payment option for your situation.",https://www.austintexas.gov/department/rundberg-health-center,(512) 978-9800,10,30.35736,-97.68678
+Sandra Joy Anderson Community Health and Wellness Center,"1705 E. 11th St. Austin, TX 78702",no,"The center accepts most insurance plans, Medicaid, and Medicare. They also offer a sliding fee scale for patients who are uninsured or underinsured. Payment assistance may be available to eligible patients.
+Administrative fee:
+It is unclear if the center charges an administrative fee. You may need to contact them directly for more information.
+Sliding scale:
+Yes, the center offers a sliding fee scale for patients who are uninsured or underinsured. The fee amount is based on the patient's income and family size.","Primary care
+Preventive care
+Chronic disease management
+Behavioral health services
+Pharmacy services
+Laboratory services","The center offers comprehensive primary care services, including preventive care, chronic disease management, and behavioral health services. They also have an on-site pharmacy and laboratory services.",https://www.austintexas.gov/department/sandra-joy-anderson-community-health-and-wellness-center,(512) 978-9900," 4, 18, and 300",30.26626,-97.721317
+South Austin Health Center,"South Austin Health Center, 2529 S. First St., Austin, TX 78704",no,The clinic offers a sliding scale fee based on income. There may also be administrative fees for certain services.,"Family Planning, Immunizations, Pregnancy Testing, Sexually Transmitted Infection (STI) Testing and Treatment, Tuberculosis (TB) Testing and Treatment, Women's Health Exams","The center offers a variety of services, including primary care, dental care, behavioral health services, and more. They also have a pharmacy on site.
+",https://www.austintexas.gov/department/south-austin-health-center,(512) 978-9900,"7, 350, and 711.
+",30.240499,-97.760414
+William Cannon Health Center,"6801 S. I-35 #1-E Austin, TX 7874",no,"They accept Medicaid, Medicare, and private insurance. They also offer a sliding fee scale based on income for patients without insurance.
+They offer a sliding fee scale based on income for patients without insurance.","Primary care, women's health, behavioral health, dental care, and pharmacy services.
+","It is recommended that patients arrive 15 minutes before their appointment time, bring their insurance card and a photo ID, and bring a list of their current medications.",https://www.austintexas.gov/department/william-cannon-health-center,"(512) 978-9400
+","1L, 1M, 801.
+",30.432291,-97.685195
+Ben White Health Clinic,"1221 W. Ben White Blvd. Ste. 200B Austin, TX 78704",no,"The clinic accepts various payment methods, including private insurance, Medicaid, Medicare, and self-payment. Sliding scale fees may be available for those who qualify.
+Administrative fee:
+It's unclear if there is an administrative fee charged. It's best to contact the clinic directly to confirm.","The clinic offers a range of services, including primary care, immunizations, lab work, family planning, women's health, and STD testing and treatment. It's best to contact the clinic directly to confirm all services offered.",,https://www.austintexas.gov/department/ben-white-health-clinic,(512) 978-9901,"#1, #10, and #333.
+",30.2270235,-97.778826
+Lone Star Circle of Care at El Buen Samaritano,"7000 Woodhue Drive Bldg. B Austin, TX 78745
+",no,"Sliding Fee based on Federal Poverty Level (FPL) for uninsured patients. Require ID, proof of address, and proof of income (banking accounts, mortgage, letter of support, etc.). No patients are turned away. Most insurances accepted, including Medicaid and CHIP.","Family Medicine, Women’s Health Services, Pediatrics","Family Health and Women’s Health Services: Monday to Friday, 7:00am-6:00pm
+Pediatrics: 7:00am-5:00pm",https://lonestarcares.org/,(877)800-5722,"#333
+",30.1992998,-97.80219
+Lone Star Circle of Care at Collinfield,"8913 Collinfield Drive Unit 1 Austin, TX 78758 ",no,"Sliding Fee based on Federal Poverty Level (FPL) for uninsured patients. Require ID, proof of address, and proof of income (banking accounts, mortgage, letter of support, etc.). No patients are turned away. Most insurances accepted, including Medicaid and CHIP.","Behavioral Health, Family Medicine, Pediatrics, Virtual Visits","Hours: Monday to Friday, 8:00am-5:00pm",https://lonestarcares.org/,(877)800-5722,#801,30.361018,-97.705324
+Lone Star Circle of Care at Jonestown,"18220 FM 1431 Ste. D Jonestown, TX 78645",no,"Sliding Fee based on Federal Poverty Level (FPL) for uninsured patients. Require ID, proof of address, and proof of income (banking accounts, mortgage, letter of support, etc.). No patients are turned away. Most insurances accepted, including Medicaid and CHIP.","Family Medicine, Convenient Care","Hours: Monday to Friday, 7:00am-8:00am",https://lonestarcares.org/,(877)800-5722,"#214
+",30.511374,-97.911752
+Lonestar Circle of Care at Northwest Austin,"11111 Research Blvd. Ste. 320 Austin, TX 78759",no,"Sliding Fee based on Federal Poverty Level (FPL) for uninsured patients. Require ID, proof of address, and proof of income (banking accounts, mortgage, letter of support, etc.). No patients are turned away. Most insurances accepted, including Medicaid and CHIP.","Family Medicine, Virtual Visits","Hours: Monday to Friday, 8:00am-5:00pm",https://lonestarcares.org/,(877)800-5722,"#3, #383",30.3893796,-97.7458507
+Lonestar Circle of Care at Texas A&M Health Sciences Center - Senior Health,"3950 N. A.W. Grimes Blvd. Ste. 301A Round Rock, TX 78665
+",no,"Sliding Fee based on Federal Poverty Level (FPL) for uninsured patients. Require ID, proof of address, and proof of income (banking accounts, mortgage, letter of support, etc.). No patients are turned away. Most insurances accepted, including Medicaid and CHIP.","Pharmacy, Senior Care, Virtual Visits","Monday to Friday, 8:00am-5:00pm",https://lonestarcares.org/,(877)800-5722,#50,30.5624363,-97.6466419
+LSCC Family Medicine at Lake Aire Medical Center,"2423 Williams Drive Ste. 105 Georgetown, TX 78628 ",no,"Sliding Fee based on Federal Poverty Level (FPL) for uninsured patients. Require ID, proof of address, and proof of income (banking accounts, mortgage, letter of support, etc.). No patients are turned away. Most insurances accepted, including Medicaid and CHIP.","Family Medicine, Pharmacy, Virtual Visits",Hours: Hours may vary. Call to confirm.,https://lonestarcares.org/,"(877)800-5722
+",,30.6604932,-97.688099
+LSCC Family Care Center at Marble Falls,"802 Ave. J Marble Falls, TX 78654 ",no,"Sliding Fee based on Federal Poverty Level (FPL) for uninsured patients. Require ID, proof of address, and proof of income (banking accounts, mortgage, letter of support, etc.). No patients are turned away. Most insurances are accepted, including Medicaid and CHIP.","Family Medicine, Pediatrics, Behavioral Health, Dental, Virtual Visits"," Monday to Friday, 8:00 am-5:00 pm
+",https://lonestarcares.org/,"(877)800-5722
+",,30.577196,-98.275506
+Lone Star Circle of Care at Stassney,"730 W. Stassney Lane Ste. 110 Austin, TX 78745",no,"Sliding Fee based on Federal Poverty Level (FPL) for uninsured patients. Require ID, proof of address, and proof of income (banking accounts, mortgage, letter of support, etc.). No patients are turned away. Most insurances accepted, including Medicaid and CHIP.","Pediatrics, Dental, Virtual Visits","Monday to Friday, 8:00am-5:00pm","https://lonestarcares.org/
+",(877)800-5722,"#1, #10, #311",30.2099138,-97.7824407
+"LSCC at Whitestone
+","1730 E. Whitestone Blvd. Ste. 101 Cedar Park, TX 78613
+",no,"Sliding Fee based on Federal Poverty Level (FPL) for uninsured patients. Require ID, proof of address, and proof of income (banking accounts, mortgage, letter of support, etc.). No patients are turned away. Most insurances accepted, including Medicaid and CHIP.
+","Pediatrics, Virtual Visits","Monday to Friday, 8:00am-5:00pm",https://lonestarcares.org/,"(877)800-5722
+",,30.528385,-97.8049241
+LSCC at Round Rock Health - Behavioral Health,"2120 N. Mays St. Ste. 430 Round Rock, TX 78665
+",no,"Sliding Fee based on Federal Poverty Level (FPL) for uninsured patients. Require ID, proof of address, and proof of income (banking accounts, mortgage, letter of support, etc.). No patients are turned away. Most insurances accepted, including Medicaid and CHIP.
+","Behavioral Health, Virtual Visits","Hours:
+Monday & Tuesday: 8:00am-7:00pm
+Wednesday to Friday: 8:00am-5:00pm",https://lonestarcares.org/,(877)800-5722,,30.5286981,-97.6895266
+LSCC at Hutto,"123 Ed Schmidt Blvd. Ste. 140 Hutto, TX 78634
+",no,"Sliding Fee based on Federal Poverty Level (FPL) for uninsured patients. Require photo ID, proof of address, and proof of income (banking accounts, mortgage, letter of support, etc.). No patients are turned away. Most insurances accepted, including Medicaid and CHIP.
+","Pediatrics, Behavioral Health, Virtual Visits","Hours: Monday to Friday, 8:00am-5:00pm
+","https://lonestarcares.org/
+",(877)800-5722,,30.541499,-97.5637887
+LSCC at Bastrop,"605 Old Austin Hwy. Bastrop, TX 78602 ",no,"Sliding Fee based on Federal Poverty Level (FPL) for uninsured patients. Require photo ID, proof of address, and proof of income (banking accounts, mortgage, letter of support, etc.). No patients are turned away. Most insurances accepted, including Medicaid and CHIP.","Family Medicine, Pediatrics, Women’s Health Services, Behavioral Health, Dental, Virtual Visits",,https://lonestarcares.org/,(877)800-5722,"#217, #350",30.1110774,-97.3373993
+People’s Community Clinic,"1101 Camino La Costa Austin, TX 78752 > St. John's neighborhood
+10323 US-290 East, Building 35, Manor, TX 78653  > Manor area",no,"Sliding Fee based on household income. Require photo ID and proof of income within the last 30 days. No patients are turned away. Most insurances accepted, including Medicaid, BCBS, Medicare, and CHIP."," Integrative Pain Management, Chronic Disease Management, Integrated Behavioral Health, Gynecology, Nutrition Education, Dental, Pediatric, Prenatal & Family Planning",,https://www.austinpcc.org/,(512)478-4939,"Bus (Location 1): #10, $300, #337
+Bus (Location 2): No suitable stops nearby",30.324108,-97.699043
+UT Children’s Wellness Clinic,"5301 Ross Rd. #H Del Valle, TX 78617",no,"Ambetter, Sendero, Sendero IdealCare, Seton Health Plan, Amerigroup, Aetna, Blue Cross/Blue Shield, Cigna, Humana, Dell Children's, Humana, PCU, MAP, Medicare, Superior Health, Traditional Medicaid, Tricare, United Health Care, UTSHIP, and Wilco Care Program. ","Newborn and Infant Care, Pediatrics, Immunizations, Well Woman Exams, Well Child Exams, Annual Health Physicals, Sports Physicals, Telemedicine, Immunizations, Chronic Disease Management, Sick Visits, Family Planning, Minor Procedures, Sexual Health and Wellness, LGBTQ+ care including PrEP therapy, and Laboratory Services. ",Non-Insured Office Visits begin at $65,https://nursing.utexas.edu/wellness-center,(512)386-3335,#271,30.178306,-97.614938
+UT Family Wellness Clinic,"2901 N. I-35 Ste. 1.301 Austin, TX 78722",no,"Accepted Insurances: Ambetter, Sendero, Sendero IdealCare, Seton Health Plan, Amerigroup, Aetna, Blue Cross/Blue Shield, Cigna, Humana, Dell Children's, Humana, PCU, MAP, Medicare, Superior Health, Traditional Medicaid, Tricare, United Health Care, UTSHIP, and Wilco Care Program. ","Newborn and Infant Care, Pediatrics, Immunizations, Well Woman Exams, Well Child Exams, Annual Health Physicals, Sports Physicals, Telemedicine, Immunizations, Chronic Disease Management, Sick Visits, Family Planning, Minor Procedures, Sexual Health and Wellness, LGBTQ+ care including PrEP therapy, and Laboratory Services. ",Non-Insured Office Visits begin at $65,https://nursing.utexas.edu/wellness-center,(512)232-3900,"#20, $465, #641",30.294304,-97.720174
+CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no patients are turned away","Wound Care, Minor Acute Care, Prescriptions, Blood Pressure Checks, Blood Sugar Checks, Medical Advice, Vaccinations (every 3 months), HIV Tests, Pregnancy Tests",,http://www.cddoyleclinic.com/,(409)571-9362," #1, #3, #20, #30, #801",30.2683292,-97.7398397
+
+        `;
+      const rows = [];
+      let row = [];
+      let field = "";
+      let enclosed = false;
+
+      for (let i = 0; i < CSV_RAW.length; i++) {
+        const char = CSV_RAW[i];
+        const nextChar = CSV_RAW[i + 1];
+
+        if (char == '"' && enclosed && nextChar == '"') {
+          field += '"';
+          i++;
+        } else if (char == '"') {
+          enclosed = !enclosed;
+        } else if (char == "," && !enclosed) {
+          const cleaned_field = field.trim();
+          if (cleaned_field.length > 0) {
+            row.push(field.trim());
+          }
+          field = "";
+        } else if ((char == "\n" || char == "\r") && !enclosed) {
+          if (field || row.length > 0) row.push(field);
+          if (row.length > 0) {
+            rows.push(row);
+          }
+          row = [];
+          field = "";
+          if (char === "\r" && nextChar === "\n") i++;
+        } else {
+          field += char;
+        }
+      }
+
+      if (field || row.length > 0) row.push(field);
+      if (row.length > 0) rows.push(row);
+      /* columns
+        "Clinic Name"
+        "Clinic Address"
+        "Insurance Needed"
+        "Payment"
+        "Services Offered"
+        "Notes"
+        "Website"
+        "Phone number"
+        "Bus Route"
+      */
+      const indexOf = (data, target) => {
+        for (const [idx, e] of data.entries()) {
+          if (e.trim().toLowerCase() == target.trim().toLowerCase()) {
+            return idx;
+          }
+        }
+      }
+      const NAME_INDEX = indexOf(rows[0], "Name");
+      const ADDRESS_INDEX = indexOf(rows[0], "Address");
+      const INSURANCE_INDEX = indexOf(rows[0], "Insurance");
+      const PAYMENT_INDEX = indexOf(rows[0], "Payment");
+      const SERVICES_INDEX = indexOf(rows[0], "Services");
+      const NOTES_INDEX = indexOf(rows[0], "Notes");
+      const WEBSITE_INDEX = indexOf(rows[0], "Website");
+      const PHONE_INDEX = indexOf(rows[0], "Phone");
+      const BUS_INDEX = indexOf(rows[0], "Bus");
+      const LAT_INDEX = indexOf(rows[0], "Latitude")
+      const LONG_INDEX = indexOf(rows[0], "Longitude")
+      const LOCATIONS_RAW = rows.slice(1)
+      console.log(rows);
+
+      const main = async () => {
+        const { Geocoder } = await google.maps.importLibrary("geocoding");
+        const { Autocomplete } = await google.maps.importLibrary("places");
+        const { AdvancedMarkerElement } =
+          await google.maps.importLibrary("marker");
+        const { LatLng } = await google.maps.importLibrary("core");
+        var markers = [];
+        var in_area = [];
+        var autocomplete;
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            console.log(pos);
+            autocomplete = pos.coords;
+          },
+          (e) => {
+            console.log(e);
+            console.log("failed to get coords");
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0,
+          },
+        );
+        const distanceMatrix = new google.maps.DistanceMatrixService();
+
+        var geocoder = new Geocoder();
+
+        autocomplete = new Autocomplete(
+          document.getElementById("locator_text"),
+        );
+
+        const infoWindow = new google.maps.InfoWindow();
+        var map = new google.maps.Map(document.getElementById("map"), {
+          center: {
+            lat: 39.833333,
+            lng: -98.583333,
+          },
+          zoom: 6,
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          mapId: "healthmaze",
+        });
+        setTimeout(() => {
+          console.log(autocomplete.coords);
+          //map.setCenter(new LatLng(autocomplete.coords.lat, autocomplete.coords.lng))
+          map.setCenter(autocomplete.coords);
+          map.setZoom(2);
+          console.log("reset center");
+        }, 600);
+
+        for (i = 0; i < LOCATIONS_RAW.length; i++) {
+          add_marker(LOCATIONS_RAW);
+        }
+
+        google.maps.event.addDomListener(window, "resize", function () {
+          centermap();
+        });
+
+        $("#locator").submit(function (e) {
+          e.preventDefault();
+          var address = $('input[type="text"]').val();
+          var radiusmiles = parseInt($("select").val());
+          var radiusmetric = radiusmiles / 0.000621371192;
+          in_area = [];
+
+          geocoder.geocode(
+            {
+              address: address,
+            },
+            function (results, status) {
+              if (status === google.maps.GeocoderStatus.OK) {
+                var searchedlocation = results[0].geometry.location;
+                var circle = new google.maps.Circle({
+                  radius: radiusmetric,
+                  center: searchedlocation,
+                });
+                map.setCenter(searchedlocation);
+                map.fitBounds(circle.getBounds());
+
+                for (i = 0; i < locations.length; i++) {
+                  var position = new google.maps.LatLng(
+                    locations[i][1],
+                    locations[i][2],
+                  );
+                  var distance =
+                    google.maps.geometry.spherical.computeDistanceBetween(
+                      searchedlocation,
+                      position,
+                    );
+
+                  if (distance <= radiusmetric) {
+                    markers[i].setMap(map);
+                    in_area.push([
+                      locations[i][0],
+                      locations[i][3],
+                      locations[i][4],
+                      (distance * 0.000621371192).toFixed(2),
+                    ]);
+                  } else {
+                    markers[i].setMap(null);
+                  }
+                }
+                resultstotal(in_area.length, radiusmiles, address, circle);
+              }
+            },
+          );
+        });
+
+        function centermap() {
+          var center = map.getCenter();
+          google.maps.event.trigger(map, "resize");
+          map.setCenter(center);
+        }
+
+        function add_marker(arraymarkers) {
+          const currentMark = arraymarkers[i];
+          var latlng = new LatLng(parseFloat(currentMark[9]), parseFloat(currentMark[10]));
+          console.log(latlng)
+          var marker = new AdvancedMarkerElement({
+            title: currentMark[0],
+            position: latlng,
+            map: map,
+            gmpClickable: true,
+          });
+          marker.addListener("click", ({ domEvent, latLng }) => {
+            const { target } = domEvent;
+
+            infoWindow.close();
+            infoWindow.setContent("Title: " + marker.title);
+            infoWindow.open(marker.map, marker);
+          });
+          markers[i] = marker;
+        }
+
+        function resultstotal(resultstotal, radius, search, circlearea) {
+          $("main")
+            .empty()
+            .append(
+              '<p class="col">' +
+                resultstotal +
+                " stores within " +
+                radius +
+                "mi of " +
+                search +
+                '</p><ol class="col"></ol>',
+            );
+          in_area.sort(function (a, b) {
+            return a[3] - b[3];
+          });
+          for (i = 0; i < in_area.length; i++) {
+            const dealername = in_area[i][0];
+            const dealeraddress = in_area[i][1];
+            const dealeremail = in_area[i][2];
+            const distanceround = in_area[i][3];
+
+            $("main ol").append(
+              "<li>" +
+                "<h4>" +
+                dealername +
+                " (" +
+                distanceround +
+                " mi away)</h4>" +
+                "<p>" +
+                dealeraddress +
+                "</p>" +
+                '<a href="mailto:' +
+                dealeremail +
+                '">' +
+                dealeremail +
+                "</a>" +
+                "</li>",
+            );
+          }
+
+          $("main, #map").addClass("active");
+
+          $("html, body").animate(
+            {
+              scrollTop: $("main").offset().top,
+            },
+            500,
+          );
+          $("main").on(
+            "transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd",
+            function (e) {
+              centermap();
+              map.fitBounds(circlearea.getBounds());
+            },
+          );
+        }
+      };
+      main().then(() => {});
+    </script>
+  </head>
+  <header role="banner" class="column-xs main-xs-center">
+    <form
+      id="locator"
+      class="container column-xs row-md cross-xs-stretch cross-md-end"
+      action=""
+    >
+      <div class="col">
+        <label for="locator_text">Type an address</label>
+        <input type="text" id="locator_text" name="locator_text" required />
+      </div>
+      <div class="col-xs-two-thirds col-md-quarter">
+        <label for="locator_radius">Within</label>
+        <select id="locator_radius" name="locator_radius">
+          <option value="10">10 mi</option>
+          <option value="25">25 mi</option>
+          <option value="50">50 mi</option>
+          <option value="100">100 mi</option>
+          <option value="100">500 mi</option>
+        </select>
+      </div>
+      <button type="submit">Search</button>
+    </form>
+  </header>
+  <aside id="map"></aside>
+  <main id="results"></main>
+</html>
