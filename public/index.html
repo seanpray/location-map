@@ -238,7 +238,7 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
             return idx;
           }
         }
-      }
+      };
       const NAME_INDEX = indexOf(rows[0], "Name");
       const ADDRESS_INDEX = indexOf(rows[0], "Address");
       const INSURANCE_INDEX = indexOf(rows[0], "Insurance");
@@ -248,10 +248,10 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
       const WEBSITE_INDEX = indexOf(rows[0], "Website");
       const PHONE_INDEX = indexOf(rows[0], "Phone");
       const BUS_INDEX = indexOf(rows[0], "Bus");
-      const LAT_INDEX = indexOf(rows[0], "Latitude")
-      const LONG_INDEX = indexOf(rows[0], "Longitude")
-      const LOCATIONS_RAW = rows.slice(1)
-      console.log(ADDRESS_INDEX)
+      const LAT_INDEX = indexOf(rows[0], "Latitude");
+      const LONG_INDEX = indexOf(rows[0], "Longitude");
+      const LOCATIONS_RAW = rows.slice(1);
+      console.log(ADDRESS_INDEX);
       console.log(rows);
 
       const main = async () => {
@@ -260,33 +260,17 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
         const { AdvancedMarkerElement } =
           await google.maps.importLibrary("marker");
         const { LatLng } = await google.maps.importLibrary("core");
-        const {spherical} = await google.maps.importLibrary("geometry")
+        const { spherical } = await google.maps.importLibrary("geometry");
 
         var markers = [];
         let in_area = [];
         var autocomplete;
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            console.log(pos);
-            autocomplete = pos.coords;
-          },
-          (e) => {
-            console.log(e);
-            console.log("failed to get coords");
-          },
-          {
-            enableHighAccuracy: false,
-            timeout: 15000,
-            maximumAge: 1000 * 60,
-          },
-        );
 
         var geocoder = new Geocoder();
 
         autocomplete = new Autocomplete(
           document.getElementById("locator_text"),
         );
-
 
         const infoWindow = new google.maps.InfoWindow();
         var map = new google.maps.Map(document.getElementById("map"), {
@@ -299,14 +283,36 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
           mapId: "healthmaze",
         });
         setTimeout(() => {
-          console.log(autocomplete.coords);
-          if (!autocomplete.coords) {
-            autocomplete.coords = { lat: 39.8, lng: -98.58}
+          let current_location;
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              console.log(pos);
+              autocomplete.coords = new LatLng(
+                pos.coords.latitude,
+                pos.coords.longitude,
+              );
+              map.setCenter(autocomplete.coords);
+              map.setZoom(9);
+            },
+            (e) => {
+              console.log(e);
+              console.log("failed to get coords");
+              autocomplete.coords = { lat: 39.8, lng: -98.58 };
+              map.setCenter(autocomplete.coords);
+              map.setZoom(6);
+            },
+            {
+              enableHighAccuracy: false,
+              timeout: 15000,
+              maximumAge: 1000 * 60,
+            },
+          );
+          if (!current_location) {
+          } else {
+            autocomplete.coords = current_location;
           }
           console.log(autocomplete.coords);
           //map.setCenter(new LatLng(autocomplete.coords.lat, autocomplete.coords.lng))
-          map.setCenter(autocomplete.coords);
-          map.setZoom(6);
           console.log("reset center");
         }, 600);
 
@@ -318,11 +324,25 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
           centermap();
         });
 
+        $(document).on('input', '#locator_radius', function() {
+            $('#location_output').html( $(this).val() );
+        });
+
+        $(document).ready(function() {
+          $("#set_location").click(function() {
+            console.log("test")
+            $("#locator_text").val(`${autocomplete.coords.lat()}, ${autocomplete.coords.lng()}`);
+          });
+        });
+
         $("#locator").submit(function (e) {
           e.preventDefault();
-          var address = $('input[type="text"]').val();
-          var radiusmiles = parseInt($("select").val());
-          var radiusmetric = radiusmiles / 0.000621371192;
+          let address = $('input[type="text"]').val();
+          if (!address || address.trim().length == 0) {
+            address = `${autocomplete.coords.lat()}, ${autocomplete.coords.lng()}`;
+          }
+          let radiusmiles = parseInt($("#location_output").val());
+          let radiusmetric = radiusmiles / 0.000621371192;
           in_area = [];
 
           geocoder.geocode(
@@ -369,6 +389,8 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
           );
         });
 
+
+
         function centermap() {
           var center = map.getCenter();
           google.maps.event.trigger(map, "resize");
@@ -376,7 +398,10 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
         }
 
         function add_marker(currentMark) {
-          const latlng = new LatLng(parseFloat(currentMark[LAT_INDEX]), parseFloat(currentMark[LONG_INDEX]));
+          const latlng = new LatLng(
+            parseFloat(currentMark[LAT_INDEX]),
+            parseFloat(currentMark[LONG_INDEX]),
+          );
           const marker = new AdvancedMarkerElement({
             title: currentMark[NAME_INDEX],
             position: latlng,
@@ -398,7 +423,7 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
             }
             const services = currentMark[SERVICES_INDEX];
             if (services.length > 0) {
-              content_string += `Services Available:${services}<br>`
+              content_string += `Services Available:${services}<br>`;
             }
             const notes = currentMark[NOTES_INDEX];
             if (notes.length > 0) {
@@ -406,15 +431,15 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
             }
             const website = currentMark[WEBSITE_INDEX];
             if (website.length > 0) {
-              content_string += `Website: <a href="${currentMark[WEBSITE_INDEX]}">${currentMark[WEBSITE_INDEX].match(/(https?:\/\/)?(www\.)?([\w-]+\.\w+)/i)[3]}</a><br>`
+              content_string += `Website: <a href="${currentMark[WEBSITE_INDEX]}">${currentMark[WEBSITE_INDEX].match(/(https?:\/\/)?(www\.)?([\w-]+\.\w+)/i)[3]}</a><br>`;
             }
             const phone = currentMark[PHONE_INDEX];
             if (phone.length > 0) {
-              content_string += `Phone: ${currentMark[PHONE_INDEX]}<br>`
+              content_string += `Phone: ${currentMark[PHONE_INDEX]}<br>`;
             }
             const bus = currentMark[BUS_INDEX];
             if (bus.length > 0) {
-              content_string += `Bus: ${currentMark[BUS_INDEX]}<br>`
+              content_string += `Bus: ${currentMark[BUS_INDEX]}<br>`;
             }
             infoWindow.setContent(content_string.trim());
             infoWindow.open(marker.map, marker);
@@ -465,8 +490,8 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
       };
       main().then(() => {
         setTimeout(() => {
-            $("#map").css("position", "static");
-        }, 500)
+          $("#map").css("position", "static");
+        }, 500);
       });
     </script>
     <style>
@@ -476,18 +501,69 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
       }
       #results {
         position: relative;
-        width: 15%;
+        width: 35%;
         float: left;
-        height: 90%;
+        height: 40vh;
         z-index: 5;
       }
 
       #maparea {
         position: relative;
-        width: 85%;
-        float: left;
-        height: 90%;
+        width: 65%;
+        height: 70vh;
+        border: 3px solid #971110;
         overflow: hidden;
+        padding: 10px;
+        border-radius: 8px;
+      }
+      /* Style for the filter container with a red frame */
+      .filter-container {
+        border: 3px solid #d3d3d3;
+        padding: 5px;
+        border-radius: 10px;
+      }
+
+      /* Additional styling as needed */
+      label {
+        position: relative;
+      }
+
+      label:before {
+        content: "";
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        width: 20px;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='25' height='25' viewBox='0 0 25 25' fill-rule='evenodd'%3E%3Cpath d='M16.036 18.455l2.404-2.405 5.586 5.587-2.404 2.404zM8.5 2C12.1 2 15 4.9 15 8.5S12.1 15 8.5 15 2 12.1 2 8.5 4.9 2 8.5 2zm0-2C3.8 0 0 3.8 0 8.5S3.8 17 8.5 17 17 13.2 17 8.5 13.2 0 8.5 0zM15 16a1 1 0 1 1 2 0 1 1 0 1 1-2 0'%3E%3C/path%3E%3C/svg%3E")
+          center / contain no-repeat;
+      }
+
+      .location_input {
+        padding: 10px 30px;
+        border: 0;
+        -webkit-appearance: none;
+      }
+
+      input {
+        border: 0;
+        outline: 0;
+      }
+      input:focus {
+        outline: none !important;
+      }
+
+      /* Style for the map container with a red frame */
+      .map-container {
+        width: 65vw;
+        border-radius: 8px;
+        height: 70vh;
+        overflow: hidden;
+        /* Additional styling as needed */
+      }
+
+      .map-view {
+        display: flex;
       }
     </style>
   </head>
@@ -497,29 +573,71 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
       class="container column-xs row-md cross-xs-stretch cross-md-end"
       action=""
     >
-      <div class="col">
-        <label for="locator_text">Type an address</label>
-        <input type="text" id="locator_text" name="locator_text" required />
+      <div class="col filter-container">
+        <label>
+          <div class="location_input">
+            <input
+              type="text"
+              id="locator_text"
+              name="locator_text"
+              placeholder="Enter Address or zip code"
+            />
+          </div>
+          <button id="set_location">Use my location</button>
+        </label>
       </div>
+      <br />
+      Filters
       <div class="col-xs-two-thirds col-md-quarter">
-        <label for="locator_radius">Within</label>
-        <select id="locator_radius" name="locator_radius">
-          <option value="10">10 mi</option>
-          <option value="25">25 mi</option>
-          <option value="50">50 mi</option>
-          <option value="100">100 mi</option>
-          <option value="500">500 mi</option>
-        </select>
+        <svg
+          height="20px"
+          width="20px"
+          version="1.1"
+          id="Capa_1"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          viewBox="0 0 255.856 255.856"
+          xml:space="preserve"
+        >
+          <g>
+            <path
+              style="fill: #000002"
+              d="M127.928,38.8c-30.75,0-55.768,25.017-55.768,55.767s25.018,55.767,55.768,55.767
+		s55.768-25.017,55.768-55.767S158.678,38.8,127.928,38.8z M127.928,135.333c-22.479,0-40.768-18.288-40.768-40.767
+		S105.449,53.8,127.928,53.8s40.768,18.288,40.768,40.767S150.408,135.333,127.928,135.333z"
+            />
+            <path
+              style="fill: #000002"
+              d="M127.928,0C75.784,0,33.362,42.422,33.362,94.566c0,30.072,25.22,74.875,40.253,98.904
+		c9.891,15.809,20.52,30.855,29.928,42.365c15.101,18.474,20.506,20.02,24.386,20.02c3.938,0,9.041-1.547,24.095-20.031
+		c9.429-11.579,20.063-26.616,29.944-42.342c15.136-24.088,40.527-68.971,40.527-98.917C222.495,42.422,180.073,0,127.928,0z
+		 M171.569,181.803c-19.396,31.483-37.203,52.757-43.73,58.188c-6.561-5.264-24.079-26.032-43.746-58.089
+		c-22.707-37.015-35.73-68.848-35.73-87.336C48.362,50.693,84.055,15,127.928,15c43.873,0,79.566,35.693,79.566,79.566
+		C207.495,112.948,194.4,144.744,171.569,181.803z"
+            />
+          </g>
+        </svg>
+        Distance
       </div>
+      <input
+        id="locator_radius"
+        name="locator_radius"
+        type="range"
+        min="1"
+        max="30"
+        value="15"
+      />
+      <output id="location_output">15</output> km
+      <br />
       <button type="submit">Search</button>
     </form>
   </header>
-  <main>
+  <div class="map-view">
     <div id="results">
       <main id="results_list"></main>
     </div>
     <div id="maparea">
       <div id="map" class="reset"></div>
     </div>
-  </main>
+  </div>
 </html>
