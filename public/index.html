@@ -324,14 +324,16 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
           centermap();
         });
 
-        $(document).on('input', '#locator_radius', function() {
-            $('#location_output').html( $(this).val() );
+        $(document).on("input", "#locator_radius", function () {
+          $("#location_output").html($(this).val());
         });
 
-        $(document).ready(function() {
-          $("#set_location").click(function() {
-            console.log("test")
-            $("#locator_text").val(`${autocomplete.coords.lat()}, ${autocomplete.coords.lng()}`);
+        $(document).ready(function () {
+          $("#set_location").click(function () {
+            console.log("test");
+            $("#locator_text").val(
+              `${autocomplete.coords.lat()}, ${autocomplete.coords.lng()}`,
+            );
           });
         });
 
@@ -388,8 +390,6 @@ CD Doyle Clinic,"304 E 7th St. Austin, TX 78701",no,"No insurance needed, no pat
             },
           );
         });
-
-
 
         function centermap() {
           var center = map.getCenter();
